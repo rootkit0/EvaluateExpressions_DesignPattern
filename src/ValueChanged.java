@@ -1,6 +1,6 @@
 public class ValueChanged<E> {
     private final E oldValue;
-    private final E	newValue;
+    private final E newValue;
 
     public ValueChanged(E oldValue, E newValue) {
         this.oldValue =	oldValue;
