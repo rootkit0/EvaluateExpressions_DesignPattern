@@ -10,7 +10,9 @@ public abstract class Quantifier<E> extends Expression<E> implements Observer {
 
     public void addExpression(Expression<E> expr) {
         expressions.add(expr);
-        expr.addObserver(this);
+        if(!(expr instanceof Constant)) {
+            expr.addObserver(this);
+        }
     }
     public void removeExpression(Expression<E> expr) {
         expr.deleteObserver(this);
@@ -31,14 +33,14 @@ public abstract class Quantifier<E> extends Expression<E> implements Observer {
         if(o.hasChanged()) {
             Expression expr = (Expression) o;
             ValueChanged valueChanged = (ValueChanged) arg;
-            if(valueChanged.getOldValue() != valueChanged.getNewValue()) {
-                //Before changing
-                E valueBefore = evaluate();
-                //Change expression
-                removeExpression(expr);
-                addExpression(expr);
-                //After changing
-                E valueAfter = evaluate();
+            //Before changing
+            E valueBefore = evaluate();
+            //Change expression
+            removeExpression(expr);
+            addExpression(expr);
+            //After changing
+            E valueAfter = evaluate();
+            if(valueBefore != valueAfter) {
                 //Notify observers stuff
                 setChanged();
                 notifyObservers(new ValueChanged<>(valueBefore, valueAfter));
