@@ -5,6 +5,8 @@ import java.util.Observer;
 
 public abstract class Quantifier<E> extends Expression<E> implements Observer {
     protected List<Expression<E>> expressions = new ArrayList<>();
+    public abstract E empty();
+    public abstract E combine(E op1, E op2);
 
     public void addExpression(Expression<E> expr) {
         expressions.add(expr);
@@ -17,12 +19,30 @@ public abstract class Quantifier<E> extends Expression<E> implements Observer {
 
     @Override
     public E evaluate() {
-        return null;
+        E value = empty();
+        for(int i=0; i<expressions.size(); ++i) {
+            value = combine(value, expressions.get(i).evaluate());
+        }
+        return value;
     }
 
-    public abstract E empty();
-    public abstract E combine(E op1, E op2);
-
     @Override
-    public void update(Observable o, Object arg) { }
+    public void update(Observable o, Object arg) {
+        if(o.hasChanged()) {
+            Expression expr = (Expression) o;
+            ValueChanged valueChanged = (ValueChanged) arg;
+            if(valueChanged.getOldValue() != valueChanged.getNewValue()) {
+                //Before changing
+                E valueBefore = evaluate();
+                //Change expression
+                removeExpression(expr);
+                addExpression(expr);
+                //After changing
+                E valueAfter = evaluate();
+                //Notify observers stuff
+                setChanged();
+                notifyObservers(new ValueChanged<>(valueBefore, valueAfter));
+            }
+        }
+    }
 }
