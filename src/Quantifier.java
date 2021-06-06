@@ -10,9 +10,7 @@ public abstract class Quantifier<E> extends Expression<E> implements Observer {
 
     public void addExpression(Expression<E> expr) {
         expressions.add(expr);
-        if(!(expr instanceof Constant)) {
-            expr.addObserver(this);
-        }
+        expr.addObserver(this);
     }
     public void removeExpression(Expression<E> expr) {
         expr.deleteObserver(this);
